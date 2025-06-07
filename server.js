@@ -1,0 +1,16 @@
+const express = require('express')
+const connectDB = require('./config')
+const cors=require('cors')
+const app = express()
+const path=require('path')
+const bodyParser=require('body-parser')
+const port = 3000
+const routesIndex=require('./routes/index')
+connectDB()
+app.use(express.json())
+app.use(cors())
+app.use(bodyParser.urlencoded({extended:true}))
+app.use('/',routesIndex)
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.get('/', (req, res) => res.send('Hello World!'))
+app.listen(port, () => console.log(`Example app listening on port ${port}!`))
