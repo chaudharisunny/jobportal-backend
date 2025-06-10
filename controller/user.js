@@ -72,8 +72,39 @@ const deleteUser=async(req,res)=>{
         const deleteUser=await User.findByIdAndDelete({id})
         return res.status(201).json({message:"user deleted",data:deleteUser})
     } catch (error) {
-        return res.status(500).json({error:"server error"})
+         res.status(500).json({error:"server error"})
     }
 }
 
-module.exports={newUser,loginUser,logout,edituser,deleteUser}
+const upgradeRoll=async(req,res)=>{
+   try {
+    const userId = req.user.id;
+    const updates = req.body;
+
+    const allowedFields = ['roll', 'company', 'username', 'email'];
+    const isValidUpdate = Object.keys(updates).every(key => allowedFields.includes(key));
+
+    if (!isValidUpdate) {
+      return res.status(400).json({ message: "Invalid fields in update request" });
+    }
+
+    // If roll is included, validate it
+    if (updates.roll) {
+      const allowedRoles = ["applicant", "recruiter"];
+      if (!allowedRoles.includes(updates.roll)) {
+        return res.status(400).json({ message: "Invalid role provided" });
+      }
+    }
+
+    // Update and return the new user data
+    const user = await User.findByIdAndUpdate(userId, updates, { new: true });
+
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    res.status(200).json({ message: "User data updated successfully", user });
+  } catch (error) {
+    console.error("Update error:", error.message);
+    res.status(500).json({ message: "Server error" });
+  }
+}
+module.exports={newUser,loginUser,logout,edituser,deleteUser,upgradeRoll}
