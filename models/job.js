@@ -9,17 +9,23 @@ const jobSchema=new mongoose.Schema({
         type:[String],
         required:true
     },
+    
     location:{
         type:String,
         required:true 
     },
+    
+  appliedUsers: [{
+  type: mongoose.Schema.Types.ObjectId,
+  ref: 'user',
+}],
      company:{
         type:String,
         required:true
     },
      category:{
         type:String,
-        enum:["parttime","fulltime","remote"],
+        enum:["part-time","full-time","remote"],
         required:true 
     },
     skill:{

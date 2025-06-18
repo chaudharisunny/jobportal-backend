@@ -1,4 +1,6 @@
 const Job = require("../models/job");
+const mongoose=require('mongoose')
+const Application=require('../models/application')
 
 const allJob = async (req, res) => {
   try {
@@ -71,12 +73,30 @@ const allJob = async (req, res) => {
     res.status(200).json({ data: job });
   } catch (error) {
     console.error('Server error:', error);
-    res.status(500).json({ message: 'Server error', error });
+    res.status(500).json({ error: 'Server error' });
   }
 };
 
 
-  
+  const myJob=async(req,res)=>{
+   try {
+    const recruiterId = req.user.userId;
+
+    const jobs = await Job.find({ postedBy: new mongoose.Types.ObjectId(recruiterId) }).lean();
+
+    const jobsWithCounts = await Promise.all(
+      jobs.map(async (job) => {
+        const applicantCount = await Application.countDocuments({ job: job._id });
+        return { ...job, applicantCount };
+      })
+    );
+
+    res.status(200).json({ data: jobsWithCounts });
+  } catch (error) {
+    console.error('Error fetching jobs with applicant count:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+  } 
 
 
 const createJob = async (req, res) => {
@@ -134,32 +154,54 @@ const deleteJob=async(req,res)=>{
   }
 }
 const getApply=async(req,res)=>{
-     try {
+    try {
     const job = await Job.findById(req.params.id);
-    if (!job) return res.status(404).json({ message: 'Job not found' });
-    res.json({ success: true, data: job });
+    if (!job) {
+      return res.status(404).json({ message: 'Job not found' });
+    }
+    res.status(200).json({ data: job });
   } catch (err) {
-    console.error('Job fetch error:', err);
-    res.status(500).json({ message: 'Internal server error' });
+    console.error('Error fetching job:', err);
+    res.status(500).json({ message: 'Failed to fetch job details' });
   }
 }
   
 const applyJob=async(req,res)=>{
- try {
-    const job = await Job.findById(req.params.id);
-    if (!job) return res.status(404).json({ message: 'Job not found' });
 
-    if (!req.file) {
-      return res.status(400).json({ message: 'No resume file uploaded' });
+try {
+   const jobId = req.params.id;
+    const userId = req.user.userId;
+    const resumeFile = req.file;
+
+  
+    if (!resumeFile) {
+      return res.status(400).json({ message: 'Resume file is required' });
     }
 
-    job.resumePath = req.file.path; // Save path to DB
-    await job.save();
+    const job = await Job.findById(jobId);
+    if (!job) return res.status(404).json({ message: 'Job not found' });
 
-    res.json({ success: true, message: 'Resume uploaded successfully' });
-  } catch (err) {
-    console.error('Upload error:', err);
-    res.status(500).json({ message: 'Resume upload failed' });
+    const alreadyApplied = await Application.findOne({ job: jobId, applicant: userId });
+    if (alreadyApplied) {
+      return res.status(400).json({ message: 'You already applied to this job' });
+    }
+
+    const application = new Application({
+      job: jobId,
+      applicant: userId,
+      resume: {  
+        data: resumeFile.buffer,
+        contentType: resumeFile.mimetype,
+        name: resumeFile.originalname,
+      },
+    });
+
+    await application.save();
+    return res.status(201).json({ message: 'Application submitted successfully', application });
+  } catch (error) {
+    console.error('Error applying for job:', error);
+    return res.status(500).json({ message: 'Server error while applying for job' });
   }
+
 }
-module.exports = {allJob,createJob,updateJob,deleteJob,findJob,applyJob,getApply};
+module.exports = {allJob,myJob,createJob,updateJob,deleteJob,findJob,applyJob,getApply};

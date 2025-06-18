@@ -19,23 +19,30 @@ const User=require("../models/user")
     }
 }
 
-const loginUser=async(req,res)=>{
-    try {
-        const{email,password}=req.body 
-        const user=await User.findOne({email})
-        if(!user){
-            return res.status(401).json({error:"user not found"})
-        }
-        const isPassword=await user.comparePassword(password)
-        if(!isPassword){
-            return res.status(201).json({error:"user not found"})
-        }
-        const token=newToken(user)
-        return res.status(201).json({message:"login success",token})
-    } catch (error) {
-        res.status(500).json({error:"server error"})
+const loginUser = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(401).json({ error: "User not found" });
     }
-}
+
+    const isPassword = await user.comparePassword(password);
+    if (!isPassword) {
+      return res.status(401).json({ error: "Invalid password" });
+    }
+
+    
+    const token = newToken(user); // JWT with user ID & role
+
+    return res.status(200).json({ message: "Login successful", token });
+  } catch (error) {
+    console.error("Login error:", error);
+    return res.status(500).json({ error: "Server error" });
+  }
+};
+
 
 const logout=(req,res)=>{
     res.clearCookie('token')
