@@ -6,7 +6,7 @@ const path=require('path')
 const bodyParser=require('body-parser')
 const session=require('express-session')
 require("dotenv").config()
-const port = 3000||process.env.PORT
+const port = process.env.PORT||3000
 const routesIndex=require('./routes/index')
 connectDB()
 app.use(express.json())
