@@ -5,6 +5,7 @@ const app = express()
 const path=require('path')
 const bodyParser=require('body-parser')
 const session=require('express-session')
+const MongoStore = require('connect-mongo');
 require("dotenv").config()
 const port = process.env.PORT||3000
 const routesIndex=require('./routes/index')
@@ -12,9 +13,13 @@ connectDB()
 app.use(express.json())
 app.use(cors())
 app.use(session({
-  secret: 'your_secret',
+  secret: process.env.JWT_SECRET,
   resave: false,
   saveUninitialized: true,
+  store: MongoStore.create({
+    mongoUrl: process.env.MONGO_URI,
+    collectionName: 'sessions'
+  }),
   cookie: { secure: false } // true if HTTPS
 }));
 
