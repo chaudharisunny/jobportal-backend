@@ -5,7 +5,8 @@ const app = express()
 const path=require('path')
 const bodyParser=require('body-parser')
 const session=require('express-session')
-const port = 3000
+require("dotenv").config()
+const port = 3000||process.env.PORT
 const routesIndex=require('./routes/index')
 connectDB()
 app.use(express.json())
@@ -16,8 +17,14 @@ app.use(session({
   saveUninitialized: true,
   cookie: { secure: false } // true if HTTPS
 }));
+
+app.get('/', (req, res) => {
+  res.send('Backend is running!');
+});
+
 app.use(bodyParser.urlencoded({extended:true}))
 app.use('/',routesIndex)
 app.use('/resume', express.static(path.join(__dirname, 'uploads/cv')))
-app.get('/', (req, res) => res.send('Hello World!'))
-app.listen(port, () => console.log(`Example app listening on port ${port}!`))
+
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => console.log(`Example app listening on port ${PORT}!`))

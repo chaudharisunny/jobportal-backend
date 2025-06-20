@@ -28,8 +28,7 @@ const applicant = async (req, res) => {
   }
 };
 
-//  resumeName: app.resume?.name || '',
-//         resumeUrl: app.resume?.url || '',
+
 
 const openpdf=async(req,res)=>{
    const fileName = decodeURIComponent(req.params.filename);
