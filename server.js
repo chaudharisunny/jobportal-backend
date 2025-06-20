@@ -5,7 +5,6 @@ const app = express()
 const path=require('path')
 const bodyParser=require('body-parser')
 const session=require('express-session')
-const MongoStore = require('connect-mongo');
 require("dotenv").config()
 const port = process.env.PORT||3000
 const routesIndex=require('./routes/index')
@@ -16,10 +15,7 @@ app.use(session({
   secret: process.env.JWT_SECRET,
   resave: false,
   saveUninitialized: true,
-  store: MongoStore.create({
-    mongoUrl: process.env.MONGO_URI,
-    collectionName: 'sessions'
-  }),
+  
   cookie: { secure: false } // true if HTTPS
 }));
 
