@@ -26,6 +26,7 @@ app.use(session({
     secure: false                 // ✅ keep false for HTTP (true if using HTTPS/Vercel custom domain)
   }
 }));
+console.log("Mongo URI for session:", process.env.MONGO_URI);
 
 app.get('/', (req, res) => {
   res.send('Backend is running!');
