@@ -27,6 +27,7 @@ app.use(session({
   }
 }));
 
+console.log("MONGO_URI value:", process.env.MONGO_URI);
 app.get('/', (req, res) => {
   res.send('Backend is running!');
 });
