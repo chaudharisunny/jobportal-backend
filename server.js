@@ -30,7 +30,7 @@ app.use(session({
 
 
 
-console.log("Mongo URI for session:", process.env.MONGO_URI);
+
 
 app.get('/', (req, res) => {
   res.send('Backend is running!');
