@@ -1,3 +1,4 @@
+require("dotenv").config()
 const express = require('express')
 const connectDB = require('./config')
 const cors=require('cors')
@@ -6,7 +7,7 @@ const path=require('path')
 const bodyParser=require('body-parser')
 const session=require('express-session')
 const MongoStore = require('connect-mongo');
-require("dotenv").config()
+
 const port = process.env.PORT||3000
 const routesIndex=require('./routes/index')
 connectDB()
