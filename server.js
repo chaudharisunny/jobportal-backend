@@ -7,7 +7,7 @@ const path=require('path')
 const bodyParser=require('body-parser')
 const session=require('express-session')
 const MongoStore = require('connect-mongo');
-
+const mongoose=require('mongoose')
 const port = process.env.PORT||3000
 const routesIndex=require('./routes/index')
 connectDB()
@@ -27,15 +27,30 @@ app.use(session({
     secure: false                 // ✅ keep false for HTTP (true if using HTTPS/Vercel custom domain)
   }
 }));
+
+
+
 console.log("Mongo URI for session:", process.env.MONGO_URI);
 
 app.get('/', (req, res) => {
   res.send('Backend is running!');
 });
 
+// app.get('/test-db', async (req, res) => {
+//   try {
+//     const collections = await mongoose.connection.db.listCollections().toArray();
+//     const names = collections.map(c => c.name);
+//     res.json({ message: '✅ Connected to DB!', collections: names });
+//   } catch (err) {
+//     console.error('❌ DB Test Failed:', err.message); // log error message
+//     res.status(500).json({ error: err.message });     // return error
+//   }
+// });
+
+
 app.use(bodyParser.urlencoded({extended:true}))
 app.use('/',routesIndex)
 app.use('/resume', express.static(path.join(__dirname, 'uploads/cv')))
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Example app listening on port ${PORT}!`))
