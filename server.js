@@ -8,12 +8,30 @@ const bodyParser=require('body-parser')
 const session=require('express-session')
 const MongoStore = require('connect-mongo');
 const routesIndex=require('./routes/index')
+
 connectDB()
 app.use(express.json())
+
+
+
+const allowedOrigins = [
+   'http://localhost:5173',
+  'https://https://jobportal-frontend-mauve.vercel.app/', // ✅ replace this with your real Vercel domain
+];
+
 app.use(cors({
-  origin: 'http://192.168.151.250:5173',  // frontend device IP + port
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      console.error('❌ Blocked CORS origin:', origin);
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true
 }));
+
+
 
 
 app.use(session({
@@ -30,9 +48,6 @@ app.use(session({
     sameSite:'none'
   }
 }));
-
-
-
 
 
 app.get('/', (req, res) => {
