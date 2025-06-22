@@ -16,7 +16,7 @@ app.use(express.json())
 
 const allowedOrigins = [
    'http://localhost:5173',
-  'https://jobportal-frontend-mauve.vercel.app/', // ✅ replace this with your real Vercel domain
+  'https://jobportal-frontend-mauve.vercel.app', // ✅ replace this with your real Vercel domain
 ];
 
 app.use(cors({
