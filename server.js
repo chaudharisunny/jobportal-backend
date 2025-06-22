@@ -7,12 +7,14 @@ const path=require('path')
 const bodyParser=require('body-parser')
 const session=require('express-session')
 const MongoStore = require('connect-mongo');
-const mongoose=require('mongoose')
-const port = process.env.PORT||3000
 const routesIndex=require('./routes/index')
 connectDB()
 app.use(express.json())
-app.use(cors())
+app.use(cors({
+  origin: 'http://192.168.151.250:5173',  // frontend device IP + port
+  credentials: true
+}));
+
 
 app.use(session({
   secret: process.env.JWT_SECRET, // ✅ loaded from Render env
@@ -24,7 +26,8 @@ app.use(session({
   }),
   cookie: {
     maxAge: 1000 * 60 * 60 * 24,   // 1 day
-    secure: false                 // ✅ keep false for HTTP (true if using HTTPS/Vercel custom domain)
+    secure: true,                // ✅ keep false for HTTP (true if using HTTPS/Vercel custom domain)
+    sameSite:'none'
   }
 }));
 
@@ -53,4 +56,4 @@ app.use('/',routesIndex)
 app.use('/resume', express.static(path.join(__dirname, 'uploads/cv')))
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Example app listening on port ${PORT}!`))
+app.listen(PORT, '0.0.0.0', () => console.log(`Example app listening on port ${PORT}!`))
