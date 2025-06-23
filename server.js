@@ -1,28 +1,22 @@
-require("dotenv").config();
-const express = require('express');
-const connectDB = require('./config');
-const cors = require('cors');
-const app = express();
-const path = require('path');
-const bodyParser = require('body-parser');
-const session = require('express-session');
+require("dotenv").config()
+const express = require('express')
+const connectDB = require('./config')
+const cors=require('cors')
+const app = express()
+const path=require('path')
+const bodyParser=require('body-parser')
+const session=require('express-session')
 const MongoStore = require('connect-mongo');
-const routesIndex = require('./routes/index');
+const routesIndex=require('./routes/index')
 
-// ✅ 1. Connect to DB
-connectDB();
+connectDB()
+app.use(express.json())
 
-// ✅ 2. Trust proxy if deployed on Render/Cloud
-app.set('trust proxy', 1); // ⬅️ Important for correct cookies on HTTPS
 
-// ✅ 3. Body parsing middleware
-app.use(express.json());
-app.use(bodyParser.urlencoded({ extended: true }));
 
-// ✅ 4. CORS configuration
 const allowedOrigins = [
-  'http://localhost:5173',
-  'https://jobportal-frontend-mauve.vercel.app' // ⬅️ Replace with your actual Vercel URL
+   'http://localhost:5173',
+  'https://jobportal-frontend-mauve.vercel.app', // ✅ replace this with your real Vercel domain
 ];
 
 app.use(cors({
@@ -37,36 +31,44 @@ app.use(cors({
   credentials: true
 }));
 
-// ✅ 5. Session configuration (cross-origin cookies)
+
+
+
 app.use(session({
-  secret: process.env.JWT_SECRET,
+  secret: process.env.JWT_SECRET, // ✅ loaded from Render env
   resave: false,
-  saveUninitialized: false,
+  saveUninitialized: false,       // ✅ safer
   store: MongoStore.create({
     mongoUrl: process.env.MONGO_URI,
     collectionName: 'sessions'
   }),
   cookie: {
-    maxAge: 1000 * 60 * 60 * 24, // 1 day
-    secure: true,                // ⬅️ Must be true for HTTPS (Render uses HTTPS)
-    sameSite: 'none',            // ⬅️ Required for cross-origin
-    httpOnly: true               // ⬅️ Prevents client-side JS access
+    maxAge: 1000 * 60 * 60 * 24,   // 1 day
+    secure: true,                // ✅ keep false for HTTP (true if using HTTPS/Vercel custom domain)
+    sameSite:'none'
   }
 }));
 
-// ✅ 6. Routes
-app.use('/', routesIndex);
 
-// ✅ 7. Serve resume files
-app.use('/resume', express.static(path.join(__dirname, 'uploads/cv')));
-
-// ✅ 8. Test route
 app.get('/', (req, res) => {
-  res.send('✅ Backend is running and accepting requests');
+  res.send('Backend is running!');
 });
 
-// ✅ 9. Start server
+// app.get('/test-db', async (req, res) => {
+//   try {
+//     const collections = await mongoose.connection.db.listCollections().toArray();
+//     const names = collections.map(c => c.name);
+//     res.json({ message: '✅ Connected to DB!', collections: names });
+//   } catch (err) {
+//     console.error('❌ DB Test Failed:', err.message); // log error message
+//     res.status(500).json({ error: err.message });     // return error
+//   }
+// });
+
+
+app.use(bodyParser.urlencoded({extended:true}))
+app.use('/',routesIndex)
+app.use('/resume', express.static(path.join(__dirname, 'uploads/cv')))
+
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`🚀 Server running on http://localhost:${PORT}`);
-});
+app.listen(PORT, '0.0.0.0', () => console.log(`Example app listening on port ${PORT}!`))
