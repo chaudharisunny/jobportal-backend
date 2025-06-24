@@ -50,8 +50,9 @@ app.use(session({
   }),
   cookie: {
     maxAge: 1000 * 60 * 60 * 24, // 1 day
-    sameSite: isProduction ? 'none' : 'lax',  // ✅ safer in dev
-    httpOnly: true
+    secure: true,                // ✅ required for HTTPS
+    sameSite: 'none',            // ✅ required for cross-origin
+    httpOnly: true               // ✅ secure from JavaScript access
   }
 }));
 
