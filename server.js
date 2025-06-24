@@ -9,6 +9,8 @@ const session = require('express-session');
 const MongoStore = require('connect-mongo');
 const routesIndex = require('./routes/index');
 
+const isProduction = process.env.NODE_ENV === 'production';
+
 // ✅ 1. Connect to MongoDB
 connectDB();
 
@@ -19,11 +21,23 @@ app.set('trust proxy', 1);
 app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-// ✅ 4. CORS fix (only allow your frontend domain, not '*')
+const allowedOrigins = [
+  'http://localhost:5173',
+  'https://jobportal-frontend-mauve.vercel.app'
+];
+
 app.use(cors({
-  origin: 'https://jobportal-frontend-mauve.vercel.app', // ✅ your actual Vercel frontend URL
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      console.error('❌ Blocked CORS origin:', origin);
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true
 }));
+
 
 // ✅ 5. Session config for cross-origin cookie handling
 app.use(session({
@@ -36,9 +50,8 @@ app.use(session({
   }),
   cookie: {
     maxAge: 1000 * 60 * 60 * 24, // 1 day
-    secure: true,                // ✅ required for HTTPS
-    sameSite: 'none',            // ✅ required for cross-origin
-    httpOnly: true               // ✅ secure from JavaScript access
+    sameSite: isProduction ? 'none' : 'lax',  // ✅ safer in dev
+    httpOnly: true
   }
 }));
 
