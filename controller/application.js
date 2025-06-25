@@ -28,7 +28,24 @@ const applicant = async (req, res) => {
   }
 };
 
+const updateStatus=async(req,res)=>{
+  const { id } = req.params;
+  const { status } = req.body;
 
+  // Check status is valid
+  if (!['hired', 'rejected'].includes(status)) {
+    return res.status(400).json({ message: 'Invalid status' });
+  }
+
+  try {
+    const updated = await Application.findByIdAndUpdate(id, { status }, { new: true });
+    if (!updated) return res.status(404).json({ message: 'Application not found' });
+
+    res.json({ message: 'Status updated', application: updated });
+  } catch (err) {
+    res.status(500).json({ message: 'Error updating status' });
+  }
+}
 
 const openpdf=async(req,res)=>{
    const fileName = decodeURIComponent(req.params.filename);
@@ -43,5 +60,5 @@ const openpdf=async(req,res)=>{
   res.sendFile(filePath);
   }
 
- module.exports = { applicant,openpdf };
+ module.exports = { applicant,updateStatus,openpdf };
 
