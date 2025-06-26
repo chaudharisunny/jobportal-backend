@@ -3,6 +3,17 @@ const Application=require('../models/application')
 const path=require('path')
 const fs = require('fs');
 
+const allApplication=async(req,res)=>{
+  try {
+       const allApp=await Application.find()
+       res.status(200).json({data:allApp})   
+  } catch (error) {
+        res.status(500).json({error:'server error'})
+  }
+ 
+}
+
+
 const applicant = async (req, res) => {
  const { jobId } = req.params;
 
@@ -60,5 +71,5 @@ const openpdf=async(req,res)=>{
   res.sendFile(filePath);
   }
 
- module.exports = { applicant,updateStatus,openpdf };
+ module.exports = {allApplication, applicant,updateStatus,openpdf };
 

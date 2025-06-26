@@ -8,7 +8,7 @@ const upload = require('../middleware/upload');
 const { verifyToken } = require('../middleware/createToken');
 const authMiddleware = require('../middleware/authMiddlware');
 const { Auth } = require('../middleware/auth');
-const { applicant, openpdf, updateStatus } = require('../controller/application');
+const { applicant, openpdf, updateStatus, allApplication } = require('../controller/application');
 
 const routes = express.Router();
 
@@ -24,6 +24,7 @@ routes.get('/myjob',authMiddleware,myJob)
 
 routes.get('/job/:jobId/applicant',requireAuth,applicant)
 
+routes.get('/allapplication',allApplication)
 routes.post('/newApplication',authMiddleware,createJob)
 routes.put('/editjob/:id',updateJob)
 routes.delete('/deletejob/:id',deleteJob)
