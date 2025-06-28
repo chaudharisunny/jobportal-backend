@@ -2,6 +2,7 @@ const Job = require('../models/job');
 const Application=require('../models/application')
 const path=require('path')
 const fs = require('fs');
+const User = require('../models/user');
 
 const allApplication=async(req,res)=>{
   try {
@@ -40,7 +41,17 @@ const applicant = async (req, res) => {
   }
 };
 
+const getApplicantUser=async(req,res)=>{
+  try {
+        const user=await User.findById(req.params.userId).select('-password');
+     if (!user) return res.status(404).json({ message: 'User not found' });
 
+  res.status(200).json({ applicant: user });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error ' }); 
+  }
+ 
+}
 
 const openpdf=async(req,res)=>{
    const fileName = decodeURIComponent(req.params.filename);
@@ -55,5 +66,5 @@ const openpdf=async(req,res)=>{
   res.sendFile(filePath);
   }
 
- module.exports = {allApplication, applicant,openpdf };
+ module.exports = {allApplication, applicant,getApplicantUser,openpdf };
 

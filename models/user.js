@@ -45,5 +45,5 @@ userSchema.pre('save',async function(next){
 userSchema.methods.comparePassword=async function(candidatePassword){
     return await bcrypt.compare(candidatePassword,this.password)
 }
-
-module.exports=mongoose.model("user",userSchema)
+const User=mongoose.model("user",userSchema)
+module.exports=User
