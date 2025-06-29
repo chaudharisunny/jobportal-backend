@@ -20,7 +20,7 @@ const applicant = async (req, res) => {
  
   try {
     // Fetch applications with populated applicant data
-    const applications = await Application.find({ job: jobId }).populate('applicant', 'username email');
+    const applications = await Application.find({ job: jobId }).populate('applicant', 'username email,phone,skill,resume');
 
     // Filter out applications where applicant data is missing
     const formatted = applications
@@ -46,7 +46,7 @@ const getApplicantUser=async(req,res)=>{
         const user=await User.findById(req.params.userId).select('-password');
      if (!user) return res.status(404).json({ message: 'User not found' });
 
-  res.status(200).json({ applicant: user });
+  return res.status(200).json({ applicant: user });
   } catch (error) {
     res.status(500).json({ message: 'Server error ' }); 
   }
