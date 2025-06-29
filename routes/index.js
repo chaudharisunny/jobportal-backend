@@ -31,7 +31,7 @@ routes.delete('/deletejob/:id',deleteJob)
 routes.get('/applyjob/:id',getApply)
 routes.post('/applyjob/:id', authMiddleware, upload.single('resume'), applyJob);
 routes.put('/employee',Auth,upgradeRoll)
-routes.get('/applicant-profile/:userId',getApplicantUser)
+routes.get('/applicant-profile/:userId',requireAuth,getApplicantUser)
 
 routes.get('/uploads/:filename',openpdf)
 routes.get('/getprofile/:id',getProfile)
