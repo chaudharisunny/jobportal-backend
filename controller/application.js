@@ -16,30 +16,34 @@ const allApplication=async(req,res)=>{
 
 
 const applicant = async (req, res) => {
- const { jobId } = req.params;
- 
   try {
-    // Fetch applications with populated applicant data
-    const applications = await Application.find({ job: jobId }).populate('applicant', 'username email,phone,skill,resume');
+    const jobId = req.params.jobId;
 
-    // Filter out applications where applicant data is missing
-    const formatted = applications
-      .filter(app => app.applicant) // Only include those with a valid applicant reference
-      .map(app => ({
-        _id: app._id,
-        status: app.status,
-        username: app.applicant.username,
-        email: app.applicant.email,
-        resumeName: app.resume?.name || '',
-        resumeUrl: app.resume?.url || '',
-      }));
+    const applications = await Application.find({ job: jobId }).populate(
+      'applicant',
+      'username +email resumeName phone skills' // ✅ ensure email is included
+    );
+
+    const formatted = applications.map((app) => {
+      const applicant = app.applicant;
+
+      return {
+        _id: applicant._id,
+        username: applicant.username,
+        email: applicant.email,
+        phone: applicant.phone,
+        skills: applicant.skills,
+        resumeName: applicant.resumeName
+      };
+    });
 
     res.status(200).json({ applicants: formatted });
-  } catch (err) {
-    console.error('Error fetching applicants:', err.message);
-    res.status(500).json({ message: 'Server error while fetching applicants' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server error' });
   }
 };
+
 
 const getApplicantUser=async(req,res)=>{
   try {

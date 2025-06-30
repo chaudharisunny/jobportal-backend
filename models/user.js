@@ -8,7 +8,8 @@ const userSchema=new mongoose.Schema({
     },
      email:{
         type:String,
-        required:true
+        required:true,
+        select:false
     },
      password:{
         type:String,
@@ -22,7 +23,7 @@ const userSchema=new mongoose.Schema({
     phone:{
         type:String
     },
-    resume:{
+    resumeName:{
         type:String
     },
     company:{
@@ -45,5 +46,5 @@ userSchema.pre('save',async function(next){
 userSchema.methods.comparePassword=async function(candidatePassword){
     return await bcrypt.compare(candidatePassword,this.password)
 }
-const User=mongoose.model("user",userSchema)
-module.exports=User
+
+module.exports=mongoose.model("user",userSchema)
