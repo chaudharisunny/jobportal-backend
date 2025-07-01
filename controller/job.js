@@ -5,21 +5,21 @@ const Application=require('../models/application')
 const allJob = async (req, res) => {
   try {
     const {
-      search,       // e.g. React or OpenAI
-      category,     // fulltime | parttime | remote
-      skill,        // comma-separated: "React,JavaScript"
-      page = 1,     // default page
-      limit = 10,   // default limit
+      search,
+      category,
+      skill,
+      page = 1,
+      limit = 10,
     } = req.query;
 
     const query = {};
+    const currentPage = Math.max(1, parseInt(page));
+    const limitNum = Math.max(1, parseInt(limit));
+    const skip = (currentPage - 1) * limitNum;
 
-    // 🔍 Search in title or company
+    // 🔍 Full-text search on title and company
     if (search) {
-      query.$or = [
-        { title: { $regex: search, $options: "i" } },
-        { company: { $regex: search, $options: "i" } },
-      ];
+      query.$text = { $search: search };
     }
 
     // 🎯 Category filter
@@ -29,29 +29,33 @@ const allJob = async (req, res) => {
 
     // 🛠 Skill filter
     if (skill) {
-      const skillsArray = skill.split(",").map((s) => s.trim());
+      const skillsArray = skill.split(',').map((s) => s.trim());
       query.skill = { $in: skillsArray };
     }
 
-    const skip = (page - 1) * limit;
+    // 📊 Count total matching jobs
     const total = await Job.countDocuments(query);
 
-    const jobs = await Job.find(query)
-    
-      .sort({ createdAt: -1 }) // newest jobs first
+    // ⚡ Fast, sorted, lean fetch
+    const jobs = await Job.find(
+      query,
+      search ? { score: { $meta: 'textScore' } } : {}
+    )
+      .sort(search ? { score: { $meta: 'textScore' }, createdAt: -1 } : { createdAt: -1 })
       .skip(skip)
-      .limit(Number(limit));
+      .limit(limitNum)
+      .lean(); // ⚡ faster than default
 
     res.status(200).json({
       total,
-      page: Number(page),
-      totalPages: Math.ceil(total / limit),
-      limit: Number(limit),
+      page: currentPage,
+      totalPages: Math.ceil(total / limitNum),
+      limit: limitNum,
       data: jobs,
     });
   } catch (error) {
-    console.error("Error fetching jobs:", error);
-    res.status(500).json({ error: "Server error" });
+    console.error('Error fetching jobs:', error);
+    res.status(500).json({ error: 'Server error' });
   }
 };
 
