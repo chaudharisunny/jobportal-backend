@@ -69,7 +69,7 @@ const allJob = async (req, res) => {
       return res.status(400).json({ error: 'id not found' });
     }
 
-    const job = await Job.findById(id); // ✅ fix here
+    const job = await Job.findById(id).lean(); // ✅ fix here
 
     if (!job) return res.status(404).json({ message: 'Job not found' });
 
