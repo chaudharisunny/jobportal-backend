@@ -51,5 +51,12 @@ const jobSchema=new mongoose.Schema({
 },{timestamps:true})
 
 
+// For full-text search
+jobSchema.index({ title: 'text', company: 'text' });
+
+// For fast filtering
+jobSchema.index({ category: 1 });
+jobSchema.index({ skill: 1 });
+jobSchema.index({ createdAt: -1 }); // Helps sort recent jobs
 
 module.exports=mongoose.model("job",jobSchema)

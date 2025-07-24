@@ -18,25 +18,27 @@ const allApplication=async(req,res)=>{
 const applicant = async (req, res) => {
   try {
     const jobId = req.params.jobId;
-
+    const baseURL = 'https://jobportal-backend-d315.onrender.com'; 
     const applications = await Application.find({ job: jobId }).populate(
       'applicant',
-      'username +email resumeName phone skills' // ✅ ensure email is included
+      'username +email  phone skills' // ✅ ensure email is included
     );
 
-    const formatted = applications.map((app) => {
-      const applicant = app.applicant;
-
-      return {
-        _id: applicant._id,
-        username: applicant.username,
-        email: applicant.email,
-        phone: applicant.phone,
-        skills: applicant.skills,
-        resumeName: applicant.resumeName
-      };
-    });
-
+    const formatted = applications
+      .filter(app => app.applicant)
+      .map(app => ({
+        _id: app._id,
+        status: app.status, // ✅ make sure this exists
+        username: app.applicant.username,
+        email: app.applicant.email,
+        phone: app.applicant.phone || '',
+        skills: app.applicant.skills || [],
+        resumeName: app.resume?.name || '',
+        resumeUrl: app.resume?.name
+          ? `${baseURL}/resume/${encodeURIComponent(app.resume.name)}`
+          : null,
+      }));
+      
     res.status(200).json({ applicants: formatted });
   } catch (error) {
     console.error(error);
