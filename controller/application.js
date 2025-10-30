@@ -18,17 +18,18 @@ const allApplication=async(req,res)=>{
 const applicant = async (req, res) => {
   try {
     const jobId = req.params.jobId;
-    const baseURL = 'https://jobportal-backend-d315.onrender.com'; 
+    const baseURL = 'https://jobportal-backend-d315.onrender.com';
+
     const applications = await Application.find({ job: jobId }).populate(
       'applicant',
-      'username +email  phone skills' // ✅ ensure email is included
+      'username email phone skills' // <-- corrected field selection
     );
 
     const formatted = applications
       .filter(app => app.applicant)
       .map(app => ({
         _id: app._id,
-        status: app.status, // ✅ make sure this exists
+        status: app.status,
         username: app.applicant.username,
         email: app.applicant.email,
         phone: app.applicant.phone || '',
@@ -38,13 +39,14 @@ const applicant = async (req, res) => {
           ? `${baseURL}/resume/${encodeURIComponent(app.resume.name)}`
           : null,
       }));
-      
+
     res.status(200).json({ applicants: formatted });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Server error' });
   }
 };
+
 
 
 const getApplicantUser=async(req,res)=>{
@@ -59,18 +61,23 @@ const getApplicantUser=async(req,res)=>{
  
 }
 
-const openpdf=async(req,res)=>{
-   const fileName = decodeURIComponent(req.params.filename);
-  const filePath = path.resolve(__dirname, '../uploads/cv', fileName);
+const openpdf = async (req, res) => {
+  try {
+    const fileName = decodeURIComponent(req.params.filename);
+    const filePath = path.resolve(__dirname, '../uploads/cv', fileName);
 
-  if (!fs.existsSync(filePath)) {
-    return res.status(404).json({ message: 'File not found' });
-  }
+    if (!fs.existsSync(filePath)) {
+      return res.status(404).json({ message: 'File not found' });
+    }
 
-  res.setHeader('Content-Type', 'application/pdf');
-  res.setHeader('Content-Disposition', 'inline; filename="' + fileName + '"');
-  res.sendFile(filePath);
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `inline; filename="${fileName}"`);
+    res.sendFile(filePath);
+  } catch (error) {
+    console.error('Error opening PDF:', error);
+    res.status(500).json({ message: 'Error reading file' });
   }
+};
 
  module.exports = {allApplication, applicant,getApplicantUser,openpdf };
 

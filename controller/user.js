@@ -35,7 +35,7 @@ const loginUser = async (req, res) => {
 
     
     const token = newToken(user); // JWT with user ID & role
-
+    console.log(token)
     return res.status(200).json({ message: "Login successful", token });
   } catch (error) {
     console.error("Login error:", error);
@@ -114,4 +114,14 @@ const upgradeRoll=async(req,res)=>{
     res.status(500).json({ message: "Server error" });
   }
 }
-module.exports={newUser,loginUser,logout,edituser,deleteUser,upgradeRoll}
+
+const debugToken =async(req,res)=>{
+  const token = req.body.token;
+  try {
+    const decoded =await jwt.verify(token, process.env.JWT_SECRET);
+    return res.json({ valid: true, decoded });
+  } catch (err) {
+   return res.status(400).json({ valid: false, error: err.message });
+  }
+}
+module.exports={newUser,loginUser,logout,edituser,deleteUser,upgradeRoll,debugToken}

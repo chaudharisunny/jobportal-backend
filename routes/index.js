@@ -1,5 +1,5 @@
 const express = require('express');
-const { newUser, loginUser, logout, edituser, deleteUser, upgradeRoll } = require('../controller/user');
+const { newUser, loginUser, logout, edituser, deleteUser, upgradeRoll, debugToken } = require('../controller/user');
 
 const requireAuth = require('../middleware/requireToken');
 const {  createJob, allJob, updateJob, deleteJob, findJob, applyJob, getApply, myJob } = require('../controller/job');
@@ -32,6 +32,8 @@ routes.get('/applyjob/:id',getApply)
 routes.post('/applyjob/:id', authMiddleware, upload.single('resume'), applyJob);
 routes.put('/employee',Auth,upgradeRoll)
 routes.get('/applicant-profile/:userId',requireAuth,getApplicantUser)
+
+routes.post('/debugToken',debugToken)
 
 routes.get('/uploads/:filename',openpdf)
 routes.get('/getprofile/:id',getProfile)

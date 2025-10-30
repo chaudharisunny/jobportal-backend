@@ -1,5 +1,5 @@
+require("dotenv").config();
 const jwt = require('jsonwebtoken');
-
 function Auth(req, res, next) {
   const token = req.header('Authorization')?.split(' ')[1]; // Bearer <token>
 
@@ -7,7 +7,7 @@ function Auth(req, res, next) {
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-   
+   console.log(decoded)
 
     // Check for userId instead of id
     if (!decoded.userId) return res.status(401).json({ message: 'Token does not contain user ID' });

@@ -3,13 +3,19 @@ const Profile = require('../models/profile')
 const User=require('../models/user') 
 
 const getProfile=async(req,res)=>{
-    try {
-        const {userId}=req.params
-        const getprofile=await Profile.findOne({userId})
-        res.status(200).json({data:getprofile})
-    } catch (error) {
-        res.status(500).json({error:"server error"})
+     try {
+    const { userId } = req.params;
+    const profile = await Profile.findOne({ userId });
+
+    if (!profile) {
+      return res.status(404).json({ message: 'Profile not found' });
     }
+
+    res.status(200).json({ data: profile });
+  } catch (error) {
+    console.error('Server error:', error);
+    res.status(500).json({ error: 'Server error' });
+  }
 }
 
 
